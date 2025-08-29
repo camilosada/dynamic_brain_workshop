@@ -1,3 +1,3 @@
-# SWDB 2025 PyNWB Capsule Template
+# SWDB 2025 ORCAs Group
 
-Python environment for using PyNWB to access datasets shared as part of SWDB 2025.
+This repo contains code for our final project at the 2025 Summer Workshop on the Dynamic Brain. 

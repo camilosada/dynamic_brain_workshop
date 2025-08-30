@@ -4,6 +4,10 @@
 		{
 			"id": "5120228b-3169-4984-9523-967f17534daa",
 			"mount": "brain-computer-interface"
+		},
+		{
+			"id": "ddf079db-ce71-468f-98ab-050a37928d8e",
+			"mount": "bci_task_metadata"
 		}
 	]
 }

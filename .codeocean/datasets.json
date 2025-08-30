@@ -6,10 +6,6 @@
 			"mount": "brain-computer-interface"
 		},
 		{
-			"id": "d7ccb280-0c4d-49e7-8eda-f51d9bcae7e9",
-			"mount": "bci_trial_threshold"
-		},
-		{
 			"id": "ddf079db-ce71-468f-98ab-050a37928d8e",
 			"mount": "bci_task_metadata"
 		}

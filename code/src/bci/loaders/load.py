@@ -41,47 +41,8 @@ def load_nwb_session_file(session_name, data_dir: str = '/data'):
         nwbfile = io.read()
     return nwbfile
 
-def align_thresholds(bci_trials: pd.DataFrame, thresholds: pd.DataFrame):
-    """
-    Aligns thresholds to trials in BCI stimulus trials dataframe
-    Added columns are "trial", "low", "high"
-    
-    Parameters
-    ----------
-    bci_trials : pd.DataFrame
-        BCI stimulus trials dataframe
-    thresholds : pd.DataFrame
-        BCI CN thresholds dataframe
-        
-    Returns
-    -------
-    bci_trials : pd.DataFrame
-        BCI stimulus trials dataframe including "low" and "high" thresholds per trials
-        
-    Raises
-    ------
-    AssertionError
-        If BCI trials dataframe is shorter than thresholds dataframe
-    AssertionError
-        If BCI trials dataframe already contains "low" or "high" columns
-    """
-    # because thresholds begin at trial 2
-    assert len(bci_trials) > len(thresholds), "BCI trials must be longer than thresholds dataframe"
-    # if these columns exist, likely already have run this function
-    assert 'low' not in bci_trials.columns, "BCI trials alrady contains threshold information"
-    assert 'high' not in bci_trials.columns, "BCI trials alrady contains threshold information"
 
-    # set up thresh df to fit bci trials df
-    aligned_thresh = pd.DataFrame(index=range(len(bci_trials)), columns=thresholds.columns)
-    delta = len(bci_trials) - len(thresholds) # should always (?) be 2 i think
-    if delta > 2:
-        print(f'Difference between BCI trials dataframe and thresholds dataframe is: {delta}')
-    aligned_thresh.iloc[delta:] = thresholds.values  # add thresholds values to df
-    bci_trials = pd.concat([bci_trials, aligned_thresh], axis=1)  # join dfs
-    return bci_trials
-    
-
-def load_session_thresh_file(session_name: str, data_dir: str = '/data'):
+def load_session_thresh_file(session_name: str, data_dir: str = '/data') -> pd.DataFrame:
     """
     Finds and loads threshold file for given session name
     
@@ -101,7 +62,7 @@ def load_session_thresh_file(session_name: str, data_dir: str = '/data'):
     
 
 # helper function for load_session_thresh_file
-def get_session_thresh_file_name(session_name, data_dir: str = '/data'):
+def get_session_thresh_file_name(session_name, data_dir: str = '/data') -> str:
     """
     Returns BCI threshold file name for given session name
     
@@ -132,7 +93,7 @@ def get_session_thresh_file_name(session_name, data_dir: str = '/data'):
     return threshold_file_name[0]
 
 # helper function for load_session_thresh_file
-def get_mouse_thresh_file_list(mouse_id, data_dir: str = '/data'):
+def get_mouse_thresh_file_list(mouse_id, data_dir: str = '/data') -> list:
     """
     Finds and returns BCI threshold files for given mouse ID
     

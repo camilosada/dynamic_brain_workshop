@@ -1,5 +1,6 @@
 import os
 from hdmf_zarr import NWBZarrIO
+import pandas as pd
 
 
 def load_nwb_session_file(session_name, data_dir: str = '/data'):

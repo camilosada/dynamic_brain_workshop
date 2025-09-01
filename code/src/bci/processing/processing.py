@@ -75,3 +75,40 @@ def smooth_dff(dff: np.array, window: int = 10):
         
     return smooth_dff
     
+    
+def get_threshold_changes(high_thresh: np.ndarray = None,
+                          low_thresh: np.ndarray = None,
+                          n_trials: int = None,
+                          bci_trials: pd.DataFrame = None):
+    """
+    Get the trials at which the threshold changes 
+    
+    Parameters
+    ----------
+    high_thresh : np.ndarray, optional
+    low_thresh : np.ndarray, optional
+    n_trials : int, optional
+    bci_trials : pd.DataFrame, optional
+    
+    Returns
+    -------
+    thresh_index_changes : np.ndarray
+        Indices of threshold changes
+        
+    Raises
+    ------
+    ValueError
+        If wrong parameters are passed
+    """
+    if high_thresh is None and low_thresh is None and n_trials is None and bci_trials is None:
+        raise ValueError("high_thresh or low_thresh, and n_trials required, or bci_trials required")
+    elif bci_trials is not None:
+        high_thresh = bci_trials['high']
+        n_trials = len(bci_trials)
+    elif high_thresh is not None and n_trials is not None:
+        high_thresh = high_thresh
+        n_trials = n_trials
+        
+    index_change_thresh = np.insert(np.where(np.insert(np.diff(high_thresh), 0, 0,)), 0, 0)
+    index_change_thresh = np.append(index_change_thresh, n_trials)
+    return index_change_thresh

@@ -36,8 +36,8 @@ def align_thresholds(bci_trials: pd.DataFrame, thresholds: pd.DataFrame) -> pd.D
     bci_trials = bci_trials.drop(columns='key_0')
     
     # check difference between thresh and trials
-    nan_low = temp['low'].isna().sum()
-    nan_high = temp['high'].isna().sum()
+    nan_low = bci_trials['low'].isna().sum()
+    nan_high = bci_trials['high'].isna().sum()
     
     if nan_low == nan_high:  # this should be likely
         all_lows = nan_low

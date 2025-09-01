@@ -319,3 +319,35 @@ def get_raw_fluorescence(nwb_file) -> pd.DataFrame:
         Raw fluorescnence trace for given NWB file
     """
     return nwb_file.processing['processed'].data_interfaces['raw'].roi_response_series['ROI_fluorescence'].data
+
+def get_roi_table(nwb_file) -> pd.DataFrame:
+    """
+    Get ROI table for given NWB file
+    
+    Parameters
+    ----------
+    nwb_file : NWB File
+        For given session
+    
+    Returns
+    -------
+    roi_table : pd.DataFrame
+        ROI table
+    """
+    return nwb_file.processing["processed"].data_interfaces["image_segmentation"].plane_segmentations["roi_table"].to_dataframe()
+
+def get_frame_rate(nwb_file):
+    """
+    Get imaging frame rate for given NWB file
+    
+    Parameters
+    ----------
+    nwb_file : NWB File
+        For given session
+        
+    Returns
+    -------
+    frame_rate : float
+        Imaging frame rate
+    """
+    return nwb_file.imaging_planes['processed'].imaging_rate

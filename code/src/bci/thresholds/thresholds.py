@@ -32,7 +32,7 @@ def align_thresholds(bci_trials: pd.DataFrame, thresholds: pd.DataFrame) -> pd.D
     assert 'high' not in bci_trials.columns, "BCI trials alrady contains threshold information"
     
     thresholds = thresholds.set_index('trial')  # index starts at 2
-    bci_trials = bci_trials.merge(thresholds, left_on=bci_trials.index, right_on=thresh_index.index, how='outer')
+    bci_trials = bci_trials.merge(thresholds, left_on=bci_trials.index, right_on=thresholds.index, how='outer')
     bci_trials = bci_trials.drop(columns='key_0')
     
     # check difference between thresh and trials

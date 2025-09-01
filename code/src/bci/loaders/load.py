@@ -214,7 +214,7 @@ def load_bci_trials(session_name: str, data_dir: str = '/data') -> pd.DataFrame:
     bci_trials = get_bci_trials(nwb_file)
     return bci_trials
 
-def get_dff(nwb_file) -> pd.DataFrame:
+def get_dff(nwb_file) -> np.ndarray:
     """
     Get dff traces for given NWB File
     
@@ -225,7 +225,7 @@ def get_dff(nwb_file) -> pd.DataFrame:
         
     Returns
     -------
-    dff : pd.DataFrame
+    dff : np.ndarray
         dff traces from NWB file
     """
     return nwbfile.processing["processed"].data_interfaces["dff"].roi_response_series["dff"].data
@@ -303,4 +303,18 @@ def load_filtered_metadata(data_dir: str = '/data'):
 
     return filtered
     
+def get_raw_fluorescence(nwb_file) -> pd.DataFrame:
+    """
+    Get raw fluorescence trace for given NWB File
     
+    Parameters
+    ----------
+    nwb_file : NWB File
+        For given session
+        
+    Returns
+    -------
+    raw_trace : np.ndarray
+        Raw fluorescnence trace for given NWB file
+    """
+    return nwb_file.processing['processed'].data_interfaces['raw'].roi_response_series['ROI_fluorescence'].data

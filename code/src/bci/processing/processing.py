@@ -50,3 +50,28 @@ def filter_somas(dff_traces, roi_table, soma_prob: float = 0.005):
         valid_rois = valid_rois.sort_index()
         
     return valid_rois
+
+def smooth_dff(dff: np.array, window: int = 10):
+    """
+    Smooth DFF signal over given sliding window
+    
+    Parameters
+    ----------
+    dff : np.array
+        dff traces
+    window : int, optional
+        Smoothing window in frames, default is 10
+        
+    Returns
+    -------
+    smooth_dff : np.ndarray
+        Smoothed dff traces
+    """
+    smooth_dff = np.full(dff.shape, np.nan)
+    kernel = np.ones(window) / window
+    
+    for idx, trial in enumerate(dff):
+        smooth_dff[idx] = np.convolve(trial, kernel, mode='same')
+        
+    return smooth_dff
+    

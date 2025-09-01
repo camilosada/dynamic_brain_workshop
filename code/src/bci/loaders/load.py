@@ -229,7 +229,7 @@ def get_dff(nwb_file) -> np.ndarray:
     dff : np.ndarray
         dff traces from NWB file
     """
-    return nwbfile.processing["processed"].data_interfaces["dff"].roi_response_series["dff"].data
+    return nwb_file.processing["processed"].data_interfaces["dff"].roi_response_series["dff"].data
 
 def get_epoch_table(nwb_file) -> pd.DataFrame:
     """
@@ -245,7 +245,7 @@ def get_epoch_table(nwb_file) -> pd.DataFrame:
     epoch_table : pd.DataFrame
         Epoch table for given session
     """
-    return nwbfile.intervals["epochs"].to_dataframe()
+    return nwb_file.intervals["epochs"].to_dataframe()
 
 def load_filtered_metadata(data_dir: str = '/data'):
     """

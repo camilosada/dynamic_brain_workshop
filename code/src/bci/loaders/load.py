@@ -1,6 +1,7 @@
 import os
 from hdmf_zarr import NWBZarrIO
 import pandas as pd
+import numpy as np
 import json
 
 
@@ -273,7 +274,7 @@ def load_filtered_metadata(data_dir: str = '/data'):
     
     # read in valid sessions
     try:
-        with open('valid_sessions.json', 'r') as f:
+        with open('/root/capsule/valid_sessions.json', 'r') as f:
             valid_sessions = json.load(f)
     except FileNotFoundError as e:
         print(e)

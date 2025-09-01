@@ -35,12 +35,11 @@ def load_nwb_session_file(session_name, data_dir: str = '/data'):
     print(f'NWB file: {nwb_file}')
     assert len(nwb_file) > 0, f"No NWB file found in {session_dir}"
     nwb_path = os.path.join(session_dir, nwb_file)
-    print(f'NWB path: nwb_path')
+    print(f'NWB path: {nwb_path}')
     # Load the data
     with NWBZarrIO(str(nwb_path), 'r') as io:
         nwbfile = io.read()
     return nwbfile
-
 
 def load_session_thresh_file(session_name: str, data_dir: str = '/data') -> pd.DataFrame:
     """
@@ -59,7 +58,6 @@ def load_session_thresh_file(session_name: str, data_dir: str = '/data') -> pd.D
     print(f'Found threshold file at: {file_path}')
     thresholds = pd.read_csv(file_path)
     return thresholds
-    
 
 # helper function for load_session_thresh_file
 def get_session_thresh_file_name(session_name, data_dir: str = '/data') -> str:
@@ -126,3 +124,75 @@ def get_mouse_thresh_file_list(mouse_id, data_dir: str = '/data') -> list:
     # check if there are any files 
     assert len(this_mouse_thresh_files) > 0, f"No files found for ID: {mouse_id}"
     return this_mouse_thresh_files
+
+def load_metadata(data_dir: str = '/data') -> pd.DataFrame:
+    """
+    Loads bci_metadata.csv as DataFrame
+    
+    Parameters
+    ----------
+    data_dir : str or Path, default is '/data'
+        Path to data directory
+    
+    Returns
+    -------
+    metadata : pd.DataFrame
+        metadata csv
+        
+    Raises
+    ------
+    FileNotFoundError
+        If metadata csv not found
+    """
+    path = os.path.join(data_dir, 'bci_task_metadata/bci_metadata.csv')
+    try:
+        metadata = pd.read_csv(path)
+    except FileNotFoundError as e:
+        print(f'File not found at {path}.\n{e}')
+        
+    return metadata
+    
+def get_session_names(mouse_id: str or int, data_dir: str = '/data') -> list:
+    """
+    Finds session names for valid mouse_id, returns ordered by date
+    
+    Parameters
+    ----------
+    mouse_id : str or int
+        Subject ID for mouse
+    data_dir : str or Path, default is '/data'
+        Path to data directory
+    
+    Returns
+    -------
+    array of str
+    
+    Raises
+    ------
+    AssertionError
+        If mouse_id is invalid
+    """
+    metadata = load_metadata()
+    mouse_md = metadata[metadata['subject_id'] == mouse_id]
+    mouse_md.sort_values(by='session_date')
+    return mouse_md['name'].values
+    
+    
+def load_bci_trials(session_name: str, data_dir: str = '/data') -> pd.DataFrame:
+    """
+    Loads BCI Trials dataframe from given session name
+    
+    Parameters
+    ----------
+    session_name : str
+        Name of experiment session
+    data_dir : str or Path, default is '/data'
+    
+    Returns
+    -------
+    bci_trials : pd.DataFrame
+        Behavior table
+    """
+    nwb_file = load_nwb_session_file(session_name, data_dir)
+    bci_trials = nwb_file.stimulus['Trials'].to_dataframe()
+    return bci_trials

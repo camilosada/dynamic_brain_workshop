@@ -1,6 +1,7 @@
 import os
 from hdmf_zarr import NWBZarrIO
 import pandas as pd
+import json
 
 
 def load_nwb_session_file(session_name, data_dir: str = '/data'):
@@ -178,6 +179,22 @@ def get_session_names(mouse_id: str or int, data_dir: str = '/data') -> list:
     return mouse_md['name'].values
     
     
+def get_bci_trials(nwb_file) -> pd.DataFrame:
+    """
+    Get BCI trials dataframe from NWB File
+    
+    Parameters
+    ----------
+    nwb_file : NWB File
+        For given session
+        
+    Returns
+    -------
+    bci_trials : pd.DataFrame
+        BCI Trials dataframe
+    """
+    return nwb_file.stimulus['Trials'].to_dataframe()
+    
 def load_bci_trials(session_name: str, data_dir: str = '/data') -> pd.DataFrame:
     """
     Loads BCI Trials dataframe from given session name
@@ -194,5 +211,96 @@ def load_bci_trials(session_name: str, data_dir: str = '/data') -> pd.DataFrame:
         Behavior table
     """
     nwb_file = load_nwb_session_file(session_name, data_dir)
-    bci_trials = nwb_file.stimulus['Trials'].to_dataframe()
+    bci_trials = get_bci_trials(nwb_file)
     return bci_trials
+
+def get_dff(nwb_file) -> pd.DataFrame:
+    """
+    Get dff traces for given NWB File
+    
+    Parameters
+    ----------
+    nwb_file : NWB File
+        For given session
+        
+    Returns
+    -------
+    dff : pd.DataFrame
+        dff traces from NWB file
+    """
+    return nwbfile.processing["processed"].data_interfaces["dff"].roi_response_series["dff"].data
+
+def get_epoch_table(nwb_file) -> pd.DataFrame:
+    """
+    Get epoch table for given NWB File
+    
+    Parameters
+    ----------
+    nwb_file : NWB File
+        For given session
+        
+    Returns
+    -------
+    epoch_table : pd.DataFrame
+        Epoch table for given session
+    """
+    return nwbfile.intervals["epochs"].to_dataframe()
+
+def load_filtered_metadata(data_dir: str = '/data'):
+    """
+    Load metadata.csv and filter to exclude sessions with no threshold data or duplicated sessions 
+    
+    Parameters
+    ----------
+    data_dir : str or Path, optional
+        Path to data directory
+        
+    Returns
+    -------
+    metadata : pd.DataFrame
+        Filtered metadata table
+        
+    Raises
+    ------
+    FileNotFoundError
+        If metadata or valid sessions file not found
+    """
+    # read in overall metadata
+    try:
+        metadata = pd.read_csv(os.path.join(data_dir, 'bci_task_metadata', 'bci_metadata.csv'))
+    except FileNotFoundError as e:
+        print(e)
+    
+    # read in valid sessions
+    try:
+        with open('valid_sessions.json', 'r') as f:
+            valid_sessions = json.load(f)
+    except FileNotFoundError as e:
+        print(e)
+        
+    # remove rows that have unreadable NWBs 
+    invalid_sessions = valid_sessions['invalid']
+    filtered = metadata[~metadata['name'].isin(invalid_sessions)]
+    
+    # get row indices for sessions with thresh files
+    filtered_idx_list = []
+    for i in valid_sessions['all']:  # these are sessions that have threshold files
+        for filtered_idx, j in enumerate(filtered['name'].values):
+            if i in j:  # session string is first half of 'name' string
+                filtered_idx_list.append(filtered_idx)
+    
+    # remove rows that don't have thresh files
+    remove_idx_list = []
+    for i in filtered.index:
+        if i not in filtered_idx_list:
+            remove_idx_list.append(i)
+    filtered = filtered.drop(remove_idx_list)
+    
+    
+    # this one is duplicated, remove
+    dupe = 'single-plane-ophys_731015_2025-01-28_18-56-35_processed_2025-08-03_21-58-28'
+    filtered = filtered[filtered['name'] != dupe]
+
+    return filtered
+    
+    

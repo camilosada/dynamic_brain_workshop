@@ -360,3 +360,21 @@ def correct_bci_trials(bci_trials: pd.DataFrame):
     correct_bci_trials = bci_trials.dropna(inplace=False,subset=['threshold_crossing_times'])
 
     return correct_bci_trials
+
+def get_valid_bci_traces(dff, valid_rois):
+    """
+    Filter dff traces to only include valid ROIs
+    
+    Parameters
+    ----------
+    dff : np.ndarray
+        dff traces
+    valid_rois : pd.DataFrame
+        ROIs table excluding unlikely somas
+        
+    Returns
+    -------
+    np.ndarray
+        dff traces excluding invalid ROIs
+    """
+    return dff[valid_rois.index.values, :]

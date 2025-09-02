@@ -351,3 +351,102 @@ def get_frame_rate(nwb_file):
         Imaging frame rate
     """
     return nwb_file.imaging_planes['processed'].imaging_rate
+
+def load_session_data(sesh: str) -> dict:
+    """
+    Load NWB File from session name and preprocess data
+    
+    Parameters
+    ----------
+    sesh : str
+        Session name
+        
+    Returns
+    -------
+    dict
+        Dictionary containing loaded session data:
+        - 'nwb_file': NWB file
+        - 'epoch_table': epoch table
+        - 'dff_traces': DFF traces
+        - 'roi_table': ROI table
+        - 'frame_rate': frame rate
+        - 'bci_trials': BCI trials, preprocessed to align thresholds and exclude nans/trials with no threshold
+        - 'thresholds': threshold (low/high) per trial
+        - 'bci_trials_original': unedited BCI trials table including thresholds
+        
+    """
+    # load files
+    nwb_file = load_nwb_session_file(sesh)
+    epoch_table = get_epoch_table(nwb_file)
+    dff_traces = get_dff(nwb_file)
+    roi_table = get_roi_table(nwb_file)
+    frame_rate = get_frame_rate(nwb_file)
+    bci_trials = get_bci_trials(nwb_file)
+    thresholds = load_session_thresh_file(sesh)
+    
+    # align thresholds with trials
+    bci_trials = align_thresholds(bci_trials, thresholds)
+    bci_trials_original = bci_trials
+    
+    # remove trials that don't have thresholds
+    bci_trials = bci_trials[bci_trials['low'].notna()]
+    
+    # drop nan trials
+    bci_trials.dropna(inplace=True, subset=['start_time', 'stop_time', 'threshold_crossing_times'])
+    bci_trials = bci_trials.reset_index()
+    
+    session_data = {'nwb_file': nwb_file,
+                    'epoch_table': epoch_table,
+                    'dff_traces': dff_traces,
+                    'roi_table': roi_table,
+                    'frame_rate': frame_rate,
+                    'bci_trials': bci_trials,
+                    'thresholds': thresholds,
+                    'bci_trials_original': bci_trials_original}
+    return session_data
+
+def align_thresholds(bci_trials: pd.DataFrame, thresholds: pd.DataFrame) -> pd.DataFrame:
+    """
+    Aligns thresholds to trials in BCI stimulus trials dataframe
+    Added columns are "trial", "low", "high"
+    
+    Parameters
+    ----------
+    bci_trials : pd.DataFrame
+        BCI stimulus trials dataframe
+    thresholds : pd.DataFrame
+        BCI CN thresholds dataframe
+        
+    Returns
+    -------
+    bci_trials : pd.DataFrame
+        BCI stimulus trials dataframe including "low" and "high" thresholds per trials
+        
+    Raises
+    ------
+    AssertionError
+        If BCI trials dataframe is shorter than thresholds dataframe
+    AssertionError
+        If BCI trials dataframe already contains "low" or "high" columns
+    """
+    assert len(bci_trials) > len(thresholds), "BCI trials must be longer than thresholds dataframe"
+    # if these columns exist, likely already have run this function
+    assert 'low' not in bci_trials.columns, "BCI trials alrady contains threshold information"
+    assert 'high' not in bci_trials.columns, "BCI trials alrady contains threshold information"
+    
+    thresholds = thresholds.set_index('trial')  # index starts at 2
+    bci_trials = bci_trials.merge(thresholds, left_on=bci_trials.index, right_on=thresholds.index, how='outer')
+    bci_trials = bci_trials.drop(columns='key_0')
+    
+    # check difference between thresh and trials
+    nan_low = bci_trials['low'].isna().sum()
+    nan_high = bci_trials['high'].isna().sum()
+    
+    if nan_low == nan_high:  # this should be likely
+        all_lows = nan_low
+        print(f'total difference in dataframes: {all_lows}')  # number of nans
+    else:
+        print(f'difference between dataframes\n\tlow: {nan_low}')
+        print(f'difference between dataframes\n\thigh: {nan_high}')
+
+    return bci_trials

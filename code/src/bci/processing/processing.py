@@ -2,16 +2,22 @@ import pandas as pd
 import numpy as np
 
 
-def filter_somas(dff_traces, roi_table, soma_prob: float = 0.005):
+def filter_somas(data: dict = None, dff_traces: np.ndarray = None, 
+                 roi_table: pd.DataFrame = None, bci_trials: pd.DataFrame = None,
+                 soma_prob: float = 0.005):
     """
-    Filters somas 
+    Filters somas by given probability 
     
     Parameters
     ----------
-    dff_traces : np.ndarray
-        DFF Traces for given session
-    roi_table : pd.DataFrame
-        ROI table
+    data : dict, optional
+        Dictionary containing ['dff_traces', 'roi_table'], default is None
+    dff_traces : np.ndarray, optional
+        DFF Traces for given session, default is None
+    roi_table : pd.DataFrame, optional
+        ROI table, default is None
+    bci_trials : pd.DataFrame, optional
+        BCI trials table
     soma_prob : float, optional
         Default is 0.005 #TrustUs
     
@@ -19,6 +25,8 @@ def filter_somas(dff_traces, roi_table, soma_prob: float = 0.005):
     -------
     valid_rois : pd.DataFrame
         ROI Table excluding unlikely somas and including CN (regardless of soma prob)
+    cn_index : int
+        Index of conditioned neuron
     
     Raises
     ------
@@ -26,6 +34,15 @@ def filter_somas(dff_traces, roi_table, soma_prob: float = 0.005):
         If more than 1 CN during BCI epoch
         
     """
+    # check for 
+    if data is None:
+        if dff_traces is None and roi_table is None and bci_trials is None:
+            raise ValueError('need dff_traces, roi_table, and bci_trials OR data dictionary')
+    else:
+        dff_traces = data['dff_traces']
+        roi_table = data['roi_table']
+        bci_trials = data['bci_trials']
+        
     # remove ROIs with NaN traces
     valid_trace_ids = [i for i in range(dff_traces.shape[1]) if np.isnan(dff_traces[0, i])==False]
     # limit ROI table to non-nan traces
@@ -35,21 +52,21 @@ def filter_somas(dff_traces, roi_table, soma_prob: float = 0.005):
     valid_rois = roi_table_filtered[roi_table_filtered['soma_probability'] > soma_prob]
     
     # add CN if not included
-    target_roi_index = bci_trials['closest_roi'].unique()
-    print(f'CN: {target_roi_index}')
+    cn_index = bci_trials['closest_roi'].unique()
+    print(f'CN: {cn_index}')
     
     # if more than one CN found
-    if len(target_roi_index) > 1:
+    if len(cn_index) > 1:
         raise ValueError("More than one CN during BCI epoch")
     
-    target_roi_index = target_roi_index[0]
+    cn_index = cn_index[0]
     
     # add to ROI table if not already there
-    if not(target_roi_index in valid_rois.index):
-        valid_rois = pd.concat((valid_rois, roi_table_filtered.loc[[target_roi_index], :]), axis=0)
+    if not(cn_index in valid_rois.index):
+        valid_rois = pd.concat((valid_rois, roi_table_filtered.loc[[cn_index], :]), axis=0)
         valid_rois = valid_rois.sort_index()
         
-    return valid_rois
+    return valid_rois, cn_index
 
 def smooth_dff(dff: np.array, window: int = 10):
     """
@@ -300,7 +317,7 @@ def get_bci_epoch_data(data: dict = None,
         'high_thresh': high_thresh,
         'dff_bci': dff_bci
     }
-=======
+
 def get_valid_bci_trials(bci_trials: pd.DataFrame):
     """
     Filter BCI trials to keep only valid trials with complete data.

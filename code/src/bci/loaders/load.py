@@ -351,3 +351,56 @@ def get_frame_rate(nwb_file):
         Imaging frame rate
     """
     return nwb_file.imaging_planes['processed'].imaging_rate
+
+def load_session_data(sesh: str) -> dict:
+    """
+    Load NWB File from session name and preprocess data
+    
+    Parameters
+    ----------
+    sesh : str
+        Session name
+        
+    Returns
+    -------
+    dict
+        Dictionary containing loaded session data:
+        - 'nwb_file': NWB file
+        - 'epoch_table': epoch table
+        - 'dff_traces': DFF traces
+        - 'roi_table': ROI table
+        - 'frame_rate': frame rate
+        - 'bci_trials': BCI trials, preprocessed to align thresholds and exclude nans/trials with no threshold
+        - 'thresholds': threshold (low/high) per trial
+        - 'bci_trials_original': unedited BCI trials table
+        
+    """
+    # load files
+    nwb_file = load.load_nwb_session_file(sesh)
+    epoch_table = load.get_epoch_table(nwb_file)
+    dff_traces = load.get_dff(nwb_file)
+    roi_table = load.get_roi_table(nwb_file)
+    frame_rate = load.get_frame_rate(nwb_file)
+    bci_trials = load.get_bci_trials(nwb_file)
+    thresholds = load.load_session_thresh_file(sesh)
+    
+    # align thresholds with trials
+    bci_trials = align_thresholds(bci_trials, thresholds)
+    bci_trials_original = bci_trials
+    
+    # remove trials that don't have thresholds
+    bci_trials = bci_trials[bci_trials['low'].notna()]
+    
+    # drop nan trials
+    bci_trials.dropna(inplace=True, subset=['start_time', 'stop_time', 'threshold_crossing_times'])
+    bci_trials = bci_trials.reset_index()
+    
+    session_data = {'nwb_file': nwb_file,
+                    'epoch_table': epoch_table,
+                    'dff_traces': dff_traces,
+                    'roi_table': roi_table,
+                    'frame_rate': frame_rate,
+                    'bci_trials': bci_trials,
+                    'thresholds': thresholds,
+                    'bci_trials_original': bci_trials_original}
+    return session_data

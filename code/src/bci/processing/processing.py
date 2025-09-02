@@ -300,3 +300,46 @@ def get_bci_epoch_data(data: dict = None,
         'high_thresh': high_thresh,
         'dff_bci': dff_bci
     }
+=======
+def get_valid_bci_trials(bci_trials: pd.DataFrame):
+    """
+    Filter BCI trials to keep only valid trials with complete data.
+
+    This function removes trials that have missing 'low' values or missing 
+    start_time/stop_time information.
+
+    Parameters
+    ----------       
+    bci_trials (pd.DataFrame): DataFrame containing BCI trial data with 
+                                    columns including 'low', 'start_time', and 'stop_time'
+
+    Returns
+    -------
+    pd.DataFrame: Filtered DataFrame containing only trials with non-null 
+                        'low' values and valid start_time/stop_time entries
+
+
+    """
+    correct_bci_trials = bci_trials[bci_trials['low'].notna()]
+    correct_bci_trials = correct_bci_trials.dropna(inplace=False,subset=['start_time', 'stop_time'])
+
+    return correct_bci_trials
+
+def correct_bci_trials(bci_trials: pd.DataFrame):
+    """
+    Filter BCI trials to keep only those with valid threshold crossing data.
+    
+    Parameters
+    ----------
+    bci_trials : pd.DataFrame
+        DataFrame containing BCI trial data with 'threshold_crossing_times' column
+    
+    Returns
+    -------
+    pd.DataFrame
+        Filtered DataFrame containing only trials with non-null 
+        threshold_crossing_times values
+    """
+    correct_bci_trials = bci_trials.dropna(inplace=False,subset=['threshold_crossing_times'])
+
+    return correct_bci_trials

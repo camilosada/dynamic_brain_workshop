@@ -112,3 +112,34 @@ def get_threshold_changes(high_thresh: np.ndarray = None,
     index_change_thresh = np.insert(np.where(np.insert(np.diff(high_thresh), 0, 0,)), 0, 0)
     index_change_thresh = np.append(index_change_thresh, n_trials)
     return index_change_thresh
+
+def get_epoch_start_stop_frames(epoch_table: pd.DataFrame, epoch: str) -> tuple:
+    """
+    Get start and stop frames for given epoch
+    
+    Parameters
+    ----------
+    epoch_table : pd.DataFrame
+        Epoch table
+    epoch : str
+        Which epoch to get times for
+        Must be in ['photostim', 'spont', 'spont_01', 'BCI', 'spont_post', 'photostim_post']
+        
+    Returns
+    -------
+    tuple
+        start and stop frames
+        
+    Raises
+    ------
+    ValueError
+        If `epoch` param not allowed
+    """
+    possible_epochs = ['photostim', 'spont', 'spont_01', 'BCI', 'spont_post', 'photostim_post']
+    if epoch not in possible_epochs:
+        raise ValueError(f'`epoch` must be in {possible_epochs}')
+        
+    epoch_of_interest = epoch_table[epoch_table['stimulus_name'].str.contains(epoch)]
+    start = epoch_of_interest.loc[epoch_of_interest.index[0]]['start_frame']
+    stop = epoch_of_interest.loc[epoch_of_interest.index[0]]['stop_frame']
+    return (start, stop)

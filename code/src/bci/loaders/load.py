@@ -372,17 +372,17 @@ def load_session_data(sesh: str) -> dict:
         - 'frame_rate': frame rate
         - 'bci_trials': BCI trials, preprocessed to align thresholds and exclude nans/trials with no threshold
         - 'thresholds': threshold (low/high) per trial
-        - 'bci_trials_original': unedited BCI trials table
+        - 'bci_trials_original': unedited BCI trials table including thresholds
         
     """
     # load files
-    nwb_file = load.load_nwb_session_file(sesh)
-    epoch_table = load.get_epoch_table(nwb_file)
-    dff_traces = load.get_dff(nwb_file)
-    roi_table = load.get_roi_table(nwb_file)
-    frame_rate = load.get_frame_rate(nwb_file)
-    bci_trials = load.get_bci_trials(nwb_file)
-    thresholds = load.load_session_thresh_file(sesh)
+    nwb_file = load_nwb_session_file(sesh)
+    epoch_table = get_epoch_table(nwb_file)
+    dff_traces = get_dff(nwb_file)
+    roi_table = get_roi_table(nwb_file)
+    frame_rate = get_frame_rate(nwb_file)
+    bci_trials = get_bci_trials(nwb_file)
+    thresholds = load_session_thresh_file(sesh)
     
     # align thresholds with trials
     bci_trials = align_thresholds(bci_trials, thresholds)
@@ -404,3 +404,49 @@ def load_session_data(sesh: str) -> dict:
                     'thresholds': thresholds,
                     'bci_trials_original': bci_trials_original}
     return session_data
+
+def align_thresholds(bci_trials: pd.DataFrame, thresholds: pd.DataFrame) -> pd.DataFrame:
+    """
+    Aligns thresholds to trials in BCI stimulus trials dataframe
+    Added columns are "trial", "low", "high"
+    
+    Parameters
+    ----------
+    bci_trials : pd.DataFrame
+        BCI stimulus trials dataframe
+    thresholds : pd.DataFrame
+        BCI CN thresholds dataframe
+        
+    Returns
+    -------
+    bci_trials : pd.DataFrame
+        BCI stimulus trials dataframe including "low" and "high" thresholds per trials
+        
+    Raises
+    ------
+    AssertionError
+        If BCI trials dataframe is shorter than thresholds dataframe
+    AssertionError
+        If BCI trials dataframe already contains "low" or "high" columns
+    """
+    assert len(bci_trials) > len(thresholds), "BCI trials must be longer than thresholds dataframe"
+    # if these columns exist, likely already have run this function
+    assert 'low' not in bci_trials.columns, "BCI trials alrady contains threshold information"
+    assert 'high' not in bci_trials.columns, "BCI trials alrady contains threshold information"
+    
+    thresholds = thresholds.set_index('trial')  # index starts at 2
+    bci_trials = bci_trials.merge(thresholds, left_on=bci_trials.index, right_on=thresholds.index, how='outer')
+    bci_trials = bci_trials.drop(columns='key_0')
+    
+    # check difference between thresh and trials
+    nan_low = bci_trials['low'].isna().sum()
+    nan_high = bci_trials['high'].isna().sum()
+    
+    if nan_low == nan_high:  # this should be likely
+        all_lows = nan_low
+        print(f'total difference in dataframes: {all_lows}')  # number of nans
+    else:
+        print(f'difference between dataframes\n\tlow: {nan_low}')
+        print(f'difference between dataframes\n\thigh: {nan_high}')
+
+    return bci_trials

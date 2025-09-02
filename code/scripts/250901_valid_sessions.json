@@ -1,0 +1,78 @@
+{
+    "731015": [
+        "single-plane-ophys_731015_2025-01-24",
+        "single-plane-ophys_731015_2025-01-28",
+        "single-plane-ophys_731015_2025-01-13",
+        "single-plane-ophys_731015_2025-01-31",
+        "single-plane-ophys_731015_2025-01-10"
+    ],
+    "740369": [
+        "single-plane-ophys_740369_2025-01-24",
+        "single-plane-ophys_740369_2025-02-03",
+        "single-plane-ophys_740369_2025-01-13",
+        "single-plane-ophys_740369_2025-01-30",
+        "single-plane-ophys_740369_2025-02-04",
+        "single-plane-ophys_740369_2025-02-17",
+        "single-plane-ophys_740369_2025-01-09"
+    ],
+    "754303": [
+        "single-plane-ophys_754303_2025-01-27",
+        "single-plane-ophys_754303_2025-01-23",
+        "single-plane-ophys_754303_2025-01-29",
+        "single-plane-ophys_754303_2025-01-31",
+        "single-plane-ophys_754303_2025-02-03"
+    ],
+    "766719": [
+        "single-plane-ophys_766719_2025-01-23",
+        "single-plane-ophys_766719_2025-01-27",
+        "single-plane-ophys_766719_2025-01-22"
+    ],
+    "767715": [
+        "single-plane-ophys_767715_2025-02-10",
+        "single-plane-ophys_767715_2025-02-03",
+        "single-plane-ophys_767715_2025-01-31",
+        "single-plane-ophys_767715_2025-02-06",
+        "single-plane-ophys_767715_2025-02-17",
+        "single-plane-ophys_767715_2025-02-13"
+    ],
+    "772414": [
+        "single-plane-ophys_772414_2025-02-10",
+        "single-plane-ophys_772414_2025-02-06",
+        "single-plane-ophys_772414_2025-01-27"
+    ],
+    "all": [
+        "single-plane-ophys_731015_2025-01-24",
+        "single-plane-ophys_731015_2025-01-28",
+        "single-plane-ophys_731015_2025-01-13",
+        "single-plane-ophys_731015_2025-01-31",
+        "single-plane-ophys_731015_2025-01-10",
+        "single-plane-ophys_740369_2025-01-24",
+        "single-plane-ophys_740369_2025-02-03",
+        "single-plane-ophys_740369_2025-01-13",
+        "single-plane-ophys_740369_2025-01-30",
+        "single-plane-ophys_740369_2025-02-04",
+        "single-plane-ophys_740369_2025-02-17",
+        "single-plane-ophys_740369_2025-01-09",
+        "single-plane-ophys_754303_2025-01-27",
+        "single-plane-ophys_754303_2025-01-23",
+        "single-plane-ophys_754303_2025-01-29",
+        "single-plane-ophys_754303_2025-01-31",
+        "single-plane-ophys_754303_2025-02-03",
+        "single-plane-ophys_766719_2025-01-23",
+        "single-plane-ophys_766719_2025-01-27",
+        "single-plane-ophys_766719_2025-01-22",
+        "single-plane-ophys_767715_2025-02-10",
+        "single-plane-ophys_767715_2025-02-03",
+        "single-plane-ophys_767715_2025-01-31",
+        "single-plane-ophys_767715_2025-02-06",
+        "single-plane-ophys_767715_2025-02-17",
+        "single-plane-ophys_767715_2025-02-13",
+        "single-plane-ophys_772414_2025-02-10",
+        "single-plane-ophys_772414_2025-02-06",
+        "single-plane-ophys_772414_2025-01-27"
+    ],
+    "invalid": [
+        "single-plane-ophys_731015_2025-01-28_17-40-57_processed_2025-08-04_04-38-08",
+        "single-plane-ophys_772414_2025-02-04_13-21-29_processed_2025-08-12_06-14-42"
+    ]
+}

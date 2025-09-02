@@ -370,11 +370,10 @@ def load_session_data(sesh: str) -> dict:
         - 'dff_traces': DFF traces
         - 'roi_table': ROI table
         - 'frame_rate': frame rate
-        - 'bci_trials': BCI trials, preprocessed to align thresholds and exclude nans/trials with no threshold
+        - 'bci_trials': BCI trials table including thresholds
         - 'thresholds': threshold (low/high) per trial
-        - 'bci_trials_original': unedited BCI trials table including thresholds
-        
     """
+    
     # load files
     nwb_file = load_nwb_session_file(sesh)
     epoch_table = get_epoch_table(nwb_file)
@@ -386,14 +385,6 @@ def load_session_data(sesh: str) -> dict:
     
     # align thresholds with trials
     bci_trials = align_thresholds(bci_trials, thresholds)
-    bci_trials_original = bci_trials
-    
-    # remove trials that don't have thresholds
-    bci_trials = bci_trials[bci_trials['low'].notna()]
-    
-    # drop nan trials
-    bci_trials.dropna(inplace=True, subset=['start_time', 'stop_time', 'threshold_crossing_times'])
-    bci_trials = bci_trials.reset_index()
     
     session_data = {'nwb_file': nwb_file,
                     'epoch_table': epoch_table,
@@ -402,7 +393,7 @@ def load_session_data(sesh: str) -> dict:
                     'frame_rate': frame_rate,
                     'bci_trials': bci_trials,
                     'thresholds': thresholds,
-                    'bci_trials_original': bci_trials_original}
+                    }
     return session_data
 
 def align_thresholds(bci_trials: pd.DataFrame, thresholds: pd.DataFrame) -> pd.DataFrame:

@@ -164,7 +164,8 @@ def get_epoch_start_stop_frames(epoch_table: pd.DataFrame, epoch: str) -> tuple:
 
 def get_dff_by_trial(dff_smooth: np.ndarray, data: dict = None, 
                      epoch_data: dict = None, bci_trials: pd.DataFrame = None, 
-                     frame_rate: float = None, ):
+                     frame_rate: float = None, start_bci_trial: np.ndarray = None,
+                    stop_bci_trial: np.ndarray = None):
     """
     Reshape dff array to separate by trial
     

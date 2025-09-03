@@ -400,3 +400,32 @@ def convert_roi_index(roi: int, valid_rois: pd.DataFrame):
     roi_original_idx = valid_rois.reset_index()['id']
     return roi_original_idx[roi_original_idx==roi].index[0]
     
+def normalize_dff(dff_data, lower_percentile=1, upper_percentile=99):
+    """
+    Normalize dff data to 0-1 scale using percentile bounds, clipping outliers
+    
+    Parameters:
+    -----------
+    dff_data : array-like
+        dff data to normalize
+    lower_percentile : float, default=1
+        lower percentile for normalization
+    upper_percentile : float, default=99
+        upper percentile for normalization
+    
+    Returns:
+    --------
+    normalized_data : array
+        DFF data scaled to 0-1 range
+    """
+    # get percentiles
+    p_low = np.nanpercentile(dff_data, lower_percentile, axis=0)
+    p_high = np.nanpercentile(dff_data, upper_percentile, axis=0)
+    
+    # normalize to 0-1
+    normalized_data = (dff_data - p_low) / (p_high - p_low)
+    
+    # clip outliers
+    # normalized_data = np.clip(normalized_data, 0, 1)
+    
+    return normalized_data

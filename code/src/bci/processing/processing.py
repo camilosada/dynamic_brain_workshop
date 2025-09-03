@@ -220,8 +220,8 @@ def get_dff_by_trial(dff_smooth: np.ndarray, data: dict = None,
     dff_by_trial = np.full((n_rois, n_trials, max_trial_duration*2), np.nan)
     
     # 
-    for trial, (start_idx, stop_idx) in enumerate(zip((go_cue * frame_rate).astype(int),
-                                                  (threshold_crossing_times * frame_rate).astype(int))):
+    for trial, (start_idx, stop_idx) in enumerate(zip(((go_cue * frame_rate)+start_bci_trial).astype(int),
+                                                  ((threshold_crossing_times * frame_rate)+start_bci_trial).astype(int))):
         # add dff_smooth for given trial window
         dff_by_trial[:, trial, :int(stop_idx-start_idx)] = dff_smooth[:, start_idx:stop_idx]
         
@@ -379,3 +379,24 @@ def get_valid_bci_traces(dff, valid_rois):
         dff traces excluding invalid ROIs
     """
     return dff[valid_rois.index.values, :]
+
+
+def convert_roi_index(roi: int, valid_rois: pd.DataFrame):
+    """
+    Takes a target ROI index and returns new index for given mapping
+    
+    Parameters
+    ----------
+    roi : int
+        ROI to get index for
+    valid_rois : pd.DataFrame
+        Table including original ROI indices
+        
+    Returns
+    -------
+    int
+        new ROI index
+    """
+    roi_original_idx = valid_rois.reset_index()['id']
+    return roi_original_idx[roi_original_idx==roi].index[0]
+    

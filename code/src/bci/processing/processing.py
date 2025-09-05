@@ -220,7 +220,7 @@ def get_dff_by_trial(dff_smooth: np.ndarray, data: dict = None,
     dff_by_trial = np.full((n_rois, n_trials, max_trial_duration*2), np.nan)
     
     # 
-    for trial, (start_idx, stop_idx) in enumerate(zip(((go_cue * frame_rate)+start_bci_trial).astype(int),
+    for trial, (start_idx, stop_idx) in enumerate(zip((start_bci_trial).astype(int),
                                                   ((threshold_crossing_times * frame_rate)+start_bci_trial).astype(int))):
         # add dff_smooth for given trial window
         dff_by_trial[:, trial, :int(stop_idx-start_idx)] = dff_smooth[:, start_idx:stop_idx]
@@ -489,5 +489,85 @@ def get_zaber_event_matrix(dff_by_trial: np.array, data: dict = None, zaber_fram
     zaber_event_matrix[rows, cols] = 1
     
     return zaber_event_matrix
+
+def smooth_dff_by_trial(dff, window=10):
+    """
+    Smooths 3D array "dff" along time axis (-1)
+    
+    Parameters
+    ----------
+    dff : np.array
+        Array of shape (n_rois, n_trials, n_frames)
+    window : int, optional
+        Frame window over which to smooth
+        
+    Returns
+    -------
+    np.array
+        Smoothed dff_by_trial array
+    """
+    from scipy import ndimage
+    return ndimage.uniform_filter1d(dff, size=window, axis=-1, mode='reflect')
+
+def get_zaber_event_matrix(dff_by_trial: np.array, data: dict = None, zaber_frames: np.array = None, thresh_crossing_frames: np.array = None):
+    """
+    
+    Parameters
+    ----------
+    dff_by_trial : np.array
+        Array containing dff traces per trial, shape (n_rois, n_trials, n_frames).
+    data : dict, optional
+        Data dictionary containing ['bci_trials'], default is None
+    zaber_frames : np.array, optional
+        Array of zaber steps in frames, shape (n_trials, max(n_steps)), default is None
+    thresh_crossing_frames : np.array, optional
+        Array of threshold crossing times in frames, shape (n_trials, 1) default is None
+        
+    Returns
+    -------
+    zaber_event_matrix : np.array
+        Binary array of zaber step times, shape (n_trials, n_frames)
+        
+    Raises
+    ------
+    ValueError
+        If wrong parameters passed
+    """
+    if data is not None:
+        # get zaber frames in right format
+        zaber_frames = data['bci_trials']['zaber_step_times'] * data['frame_rate'] - data['bci_trials']['go_cue']
+        zaber_frames = np.array(zaber_frames.tolist())
+        
+        # get threshold crossing frames in right format
+        thresh_crossing_frames = np.round(data['bci_trials']['threshold_crossing_times']*data['frame_rate']).astype(int)
+        thresh_crossing_frames = thresh_crossing_frames.values.reshape(-1, 1)
+        
+    elif zaber_frames is not None and thresh_crossing_frames is not None:
+            if len(zaber_frames.shape) != 2:
+                raise ValueError("zaber_frames shape must be (n_trials, max(n_steps))")
+            if len(thresh_crossing_frames.shape) != 2:
+                raise ValueError("thresh_crossing_frames shape must be (n_trials, 1)")
+    else:
+        raise ValueError("must pass either data dictionary OR zaber_frames AND thresh_crossing_frames")
+    
+    # check dff matrix shape
+    if len(dff_by_trial.shape) != 3:
+        raise ValueError("dff_by_trial shape must be (n_rois, n_trials, n_frames")
+        
+    # get mask of zaber steps before threshold crossing time
+    mask = np.astype(np.where(zaber_frames < thresh_crossing_frames, zaber_frames, 0), int)
+    
+    # get zaber step coordinates
+    rows, _ = np.where(mask != 0) 
+    cols = mask[np.where(mask != 0, True, False)]
+    
+    # initialize
+    zaber_event_matrix = np.zeros_like(dff_by_trial[0, :, :])
+    
+    # apply mask
+    zaber_event_matrix[rows, cols] = 1
+    
+    return zaber_event_matrix
+
     
     

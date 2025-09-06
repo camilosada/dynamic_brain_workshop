@@ -2,12 +2,21 @@
 	"version": 1,
 	"attached_datasets": [
 		{
+			"id": "3d9b83d9-1924-41b0-9e29-01f85754a6c5",
+			"mount": "camila_results_bci_workshop"
+		},
+		{
 			"id": "5120228b-3169-4984-9523-967f17534daa",
 			"mount": "brain-computer-interface"
 		},
 		{
+<<<<<<< HEAD
 			"id": "d7ccb280-0c4d-49e7-8eda-f51d9bcae7e9",
 			"mount": "bci_trial_threshold"
+=======
+			"id": "9ec7a84c-375d-4ae4-a774-ea247119061f",
+			"mount": "bci-thresholds"
+>>>>>>> 9c241634b6c0d8531bddc933923eaf29ec040973
 		},
 		{
 			"id": "ddf079db-ce71-468f-98ab-050a37928d8e",

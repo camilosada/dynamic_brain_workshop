@@ -2,6 +2,10 @@
 	"version": 1,
 	"attached_datasets": [
 		{
+			"id": "3d9b83d9-1924-41b0-9e29-01f85754a6c5",
+			"mount": "camila_results_bci_workshop"
+		},
+		{
 			"id": "5120228b-3169-4984-9523-967f17534daa",
 			"mount": "brain-computer-interface"
 		},
